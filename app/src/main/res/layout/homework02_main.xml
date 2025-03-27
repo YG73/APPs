@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    >
+
+    <TextView
+        android:id="@+id/stu_num"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/my_num"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/stu_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/my_name"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/stu_num"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="409dp"
+        android:layout_height="662dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+        <EditText
+            android:id="@+id/input_weight"
+            android:layout_width="278dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="85dp"
+            android:layout_marginBottom="16dp"
+            android:ems="10"
+            android:inputType="numberDecimal"
+            android:hint="请输入您的体重:kg"
+            android:minHeight="48dp"
+            app:layout_constraintBottom_toTopOf="@+id/input_height"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.438"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/input_height"
+            android:layout_width="290dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:ems="10"
+            android:inputType="numberDecimal"
+            android:hint="请输入您的身高:m"
+            android:minHeight="48dp"
+            app:layout_constraintBottom_toTopOf="@+id/but_get_res"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.437"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/input_weight" />
+
+        <Button
+            android:id="@+id/but_get_res"
+            android:layout_width="141dp"
+            android:layout_height="57dp"
+            android:layout_marginStart="124dp"
+            android:layout_marginBottom="16dp"
+            android:text="计算"
+            android:onClick="onClick"
+            app:layout_constraintBottom_toTopOf="@+id/textView2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/input_height"
+            />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="231dp"
+            android:text="@string/guan_gao"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/but_get_res" />
+
+        <TextView
+            android:id="@+id/show_res"
+            android:layout_width="404dp"
+            android:layout_height="83dp"
+            android:gravity="center"
+            android:text="BMI计算器"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toTopOf="@+id/input_weight"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
