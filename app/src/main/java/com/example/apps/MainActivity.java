@@ -24,17 +24,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.homwork01_main);
+        setContentView(R.layout.homework02_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-//        weight =(EditText) findViewById(R.id.input_weight);
-//        height = findViewById(R.id.input_height);
-//        show_res = findViewById(R.id.textView2);
-//        bmiText = findViewById(R.id.show_res);
-//        cal = findViewById(R.id.but_get_res);
+
+        try {
+            weight =(EditText) findViewById(R.id.input_weight);
+            height = findViewById(R.id.input_height);
+            show_res = findViewById(R.id.textView2);
+            bmiText = findViewById(R.id.show_res);
+            cal = findViewById(R.id.but_get_res);
+        } catch (Exception e) {
+            Log.e(TAG, "引用组件失败",e );
+        }
     }
 
     @Override

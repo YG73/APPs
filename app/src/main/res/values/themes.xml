@@ -2,7 +2,8 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.APPs" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<!--         <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">#FF8888</item>//修改主题颜色为粉色
     </style>
 
     <style name="Theme.APPs" parent="Base.Theme.APPs" />
