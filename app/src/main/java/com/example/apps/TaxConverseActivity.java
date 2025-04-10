@@ -3,6 +3,8 @@ package com.example.apps;
 import static android.content.ContentValues.TAG;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.ComponentCaller;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +15,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -44,14 +51,15 @@ public class TaxConverseActivity extends AppCompatActivity implements View.OnCli
         euro_btn = findViewById(R.id.euro_btn);
         dollar_btn = findViewById(R.id.dollar_btn);
 
-        try {
-            intent = getIntent();
-            DOLLAR_RATE = intent.getDoubleExtra("DOLLAR_RATE",0.14);
-            WON_RATE = intent.getDoubleExtra("WON_RATE",200.91);
-            EURO_RATE = intent.getDoubleExtra("EURO_RATE",0.13);
-        } catch (Exception e) {
-            Log.e(TAG, "getIntent: ",e);
-        }
+        //下面这段是优化前获取传入数据的方法
+//        try {
+//            intent = getIntent();
+//            DOLLAR_RATE = intent.getDoubleExtra("DOLLAR_RATE",0.14);
+//            WON_RATE = intent.getDoubleExtra("WON_RATE",200.91);
+//            EURO_RATE = intent.getDoubleExtra("EURO_RATE",0.13);
+//        } catch (Exception e) {
+//            Log.e(TAG, "getIntent: ",e);
+//        }
     }
 
     @Override
@@ -79,13 +87,56 @@ public class TaxConverseActivity extends AppCompatActivity implements View.OnCli
         text.setText(String.valueOf(res));
     }
 
+//    ActivityResultLauncher luncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+//            result ->{
+//                if(requestCode==6 &&resultCode==3) {
+//                    try {
+//                        Bundle bn = data.getExtras();
+//                        DOLLAR_RATE = bn.getDouble("DOLLAR_RATE", 0.14);
+//                        WON_RATE = bn.getDouble("WON_RATE", 200.91);
+//                        EURO_RATE = bn.getDouble("EURO_RATE", 0.13);
+//                    } catch (Exception e) {
+//                        Log.i(TAG, "onActivityResult: 获取数据报错: "+e);
+//                    }
+//
+//                    Log.i(TAG, "onActivityResult: DOLLAR_RATE= " + DOLLAR_RATE);
+//                    Log.i(TAG, "onActivityResult: EURO_RATE= " + EURO_RATE);
+//                    Log.i(TAG, "onActivityResult: WON_RATE= " + WON_RATE);
+//
+//                }
+//            }
+//    )
     public void myConverseClick(View btn){
         //跳转到新页面
         Intent intent = new Intent(this,ConfigSetRatActivity.class);
         intent.putExtra("DOLLAR_RATE",DOLLAR_RATE);
         intent.putExtra("EURO_RATE",EURO_RATE);
         intent.putExtra("WON_RATE",WON_RATE);
-        startActivity(intent);
+        Log.i(TAG, "myConverseClick: DOLLAR_RATE= "+DOLLAR_RATE);
+        Log.i(TAG, "myConverseClick: EURO_RATE= "+EURO_RATE);
+        Log.i(TAG, "myConverseClick: WON_RATE= "+WON_RATE);
+
+        startActivityForResult(intent,6);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        //从data中获取数据
+        if(requestCode==6 &&resultCode==3) {
+            try {
+                Bundle bn = data.getExtras();
+                DOLLAR_RATE = bn.getDouble("DOLLAR_RATE", 0.14);
+                WON_RATE = bn.getDouble("WON_RATE", 200.91);
+                EURO_RATE = bn.getDouble("EURO_RATE", 0.13);
+            } catch (Exception e) {
+                Log.i(TAG, "onActivityResult: 获取数据报错: "+e);
+            }
+
+            Log.i(TAG, "onActivityResult: DOLLAR_RATE= " + DOLLAR_RATE);
+            Log.i(TAG, "onActivityResult: EURO_RATE= " + EURO_RATE);
+            Log.i(TAG, "onActivityResult: WON_RATE= " + WON_RATE);
+
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
 }

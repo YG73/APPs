@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -16,6 +17,7 @@ public class ScoringTwoActivity extends AppCompatActivity {
 
     Button team1_add1,team1_add2,team_add3,team2_add1,team2_add2,team2_add3,reset_btn;
     TextView team1_score,team2_score;
+    int team_a_score,team_b_score;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,11 +42,11 @@ public class ScoringTwoActivity extends AppCompatActivity {
     public void onTowClick(View v) {
         //TEAM A的计分
         String s1 = (String)team1_score.getText();
-        int team_a_score = Integer.parseInt(s1);
+        team_a_score = Integer.parseInt(s1);
 
         //TEAM B的计分
         String s2 = (String)team2_score.getText();
-        int team_b_score = Integer.parseInt(s2);
+        team_b_score = Integer.parseInt(s2);
 
 
         if(v.getId()==R.id.team1_add1){
@@ -64,6 +66,25 @@ public class ScoringTwoActivity extends AppCompatActivity {
             team_a_score=0;
         }
 
+        team1_score.setText(String.valueOf(team_a_score));
+        team2_score.setText(String.valueOf(team_b_score));
+    }
+
+    //保证旋转后的数据仍然存在
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("team_a_score",team_a_score);
+        outState.putInt("team_b_score",team_b_score);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        //获取传递过来的分数
+        team_a_score = savedInstanceState.getInt("team_a_score");
+        team_b_score = savedInstanceState.getInt("team_b_score");
+        //显示分数
         team1_score.setText(String.valueOf(team_a_score));
         team2_score.setText(String.valueOf(team_b_score));
     }
