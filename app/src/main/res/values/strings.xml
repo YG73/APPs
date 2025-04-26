@@ -16,4 +16,6 @@
     <string name="dollar_rate">美元汇率</string>
     <string name="won_rate">韩元汇率</string>
     <string name="euro_rate">欧元汇率</string>
+    <string name="back">back</string>
+    <string name="tip">外汇兑人民币</string>
 </resources>
