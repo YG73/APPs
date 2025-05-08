@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tv_currency_type"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginTop="32dp"
+        android:gravity="center"
+        android:text="人民币兑换XX货币"
+        android:textColor="#A03535"
+        android:textSize="24sp" />
+
+    <EditText
+        android:id="@+id/et_rmb_amount"
+        android:layout_width="match_parent"
+        android:layout_height="66dp"
+        android:layout_marginTop="16dp"
+        android:hint="请输入人民币金额"
+        android:inputType="numberDecimal"
+        android:minHeight="16dp"
+        android:textColorHint="#6F6666" />
+
+    <Button
+        android:id="@+id/btn_calculate"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginTop="16dp"
+        android:minHeight="16dp"
+        android:text="计算" />
+
+    <TextView
+        android:id="@+id/tv_result"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:text="兑换结果将显示在这里!"
+        android:textColor="#AB0584"
+        android:textSize="20sp" />
+
+</LinearLayout>

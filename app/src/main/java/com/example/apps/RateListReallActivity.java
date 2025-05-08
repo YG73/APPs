@@ -1,14 +1,13 @@
 package com.example.apps;
 
-import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -29,28 +28,29 @@ import java.util.List;
 public class RateListReallActivity extends AppCompatActivity {
     private Handler handler;
     private static final String TAG = "RateListAcitivity";
-
-    private ListView listView =null;
+    private ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //绑定展示页面
         setContentView(R.layout.activity_rate_list_reall);
-        //绑定List
         listView = findViewById(R.id.rate_List);
-        //若爬取失败，就显示test
-        String[] data = {"t","e","s","t"};
-        ListAdapter listAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,data);
-        listView.setAdapter(listAdapter);
+
+        // 若爬取失败，就显示test
+        String[] data = {"t", "e", "s", "t"};
+        List<String> testList = new ArrayList<>();
+        for (String item : data) {
+            testList.add(item);
+        }
+        CustomRateAdapter testAdapter = new CustomRateAdapter(this, R.layout.custom_list_item, testList);
+        listView.setAdapter(testAdapter);
 
         handler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
                 if (msg.what == 7) {
                     Bundle bnd = msg.getData();
-                    Log.i(TAG, "handleMessage: get bnd"+bnd);
+                    Log.i(TAG, "handleMessage: get bnd" + bnd);
                     if (bnd != null) {
                         List<String> list2 = new ArrayList<>();
                         // 遍历 Bundle 中的所有国家和汇率
@@ -58,9 +58,9 @@ public class RateListReallActivity extends AppCompatActivity {
                             double rate = bnd.getDouble(country);
                             list2.add(country + "汇率：" + rate);
                         }
-                        ListAdapter adapter = new ArrayAdapter<>(
+                        CustomRateAdapter adapter = new CustomRateAdapter(
                                 RateListReallActivity.this,
-                                android.R.layout.simple_list_item_1,
+                                R.layout.custom_list_item,
                                 list2
                         );
                         listView.setAdapter(adapter);
@@ -70,11 +70,36 @@ public class RateListReallActivity extends AppCompatActivity {
             }
         };
 
+        // 设置列表项点击监听
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            // 获取当前点击项的数据
+            String itemData = (String) listView.getItemAtPosition(position);
+
+            // 解析国家和汇率（"汇率：XX.XX  国家"）
+            String[] parts = itemData.split("汇率：");
+            if (parts.length == 2) {
+                String country = parts[0].trim();
+                try {
+                    double rate = Double.parseDouble(parts[1].trim());
+
+                    // 跳转到计算页面
+                    Intent intent = new Intent(RateListReallActivity.this, RateCalculateActivity.class);
+                    intent.putExtra("country", country);  // 传递国家名称
+                    intent.putExtra("rate", rate);        // 传递汇率
+                    startActivity(intent);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(RateListReallActivity.this, "无效的汇率数据", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(RateListReallActivity.this, "数据格式错误", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         // 启动子线程
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Message msg =null;
+                Message msg = null;
                 Bundle bnd = new Bundle();
 
                 try {
@@ -95,8 +120,6 @@ public class RateListReallActivity extends AppCompatActivity {
                         Log.e(TAG, "表格行数据不足");
                         return;
                     }
-//                    body > main > div:nth-child(1) > div > div.table-responsive > table > tbody > tr:nth-child(1) > td:nth-child(2)
-//                    body > main > div:nth-child(1) > div > div.table-responsive > table > tbody > tr:nth-child(1) > th > a > span
                     for (int i = 0; i < trs.size(); i++) {
                         Element row = trs.get(i);
                         // 提取货币名称
@@ -121,7 +144,7 @@ public class RateListReallActivity extends AppCompatActivity {
                     Log.e(TAG, "run:" + e);
                     return;
                 }
-                msg = handler.obtainMessage(7,bnd);
+                msg = handler.obtainMessage(7, bnd);
                 msg.setData(bnd); // 存入 Bundle
                 handler.sendMessage(msg);
                 Log.i(TAG, "消息发送，Bundle 内容：" + bnd);
@@ -130,7 +153,6 @@ public class RateListReallActivity extends AppCompatActivity {
     }
 
     private String inputStream2String(InputStream inputStream) throws IOException {
-        //从ppt copy
         final int bufferSize = 1024;
         final char[] buffer = new char[bufferSize];
         final StringBuilder out = new StringBuilder();

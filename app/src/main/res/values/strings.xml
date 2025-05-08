@@ -18,4 +18,6 @@
     <string name="euro_rate">欧元汇率</string>
     <string name="back">back</string>
     <string name="tip">外汇兑人民币</string>
+    <string name="itemdetail">ItemDetail</string>
+    <string name="itemTitle">ItemTitle</string>
 </resources>
