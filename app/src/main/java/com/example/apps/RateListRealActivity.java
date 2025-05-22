@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -35,19 +36,45 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class RateListRealActivity extends AppCompatActivity implements AdapterView.OnItemLongClickListener {
+    private static final String PREF_NAME = "RatePrefs";
+    private static final String LAST_UPDATE_KEY = "last_update";
     private RateDatabaseHelper dbHelper;
     private Handler handler;
-    private static final String TAG = "RateListReallAcitivity";
+    private static final String TAG = "RateListRealActivity";
     private ListView listView;
     private CustomRateAdapter adapter;
     private List<String> rateList = new ArrayList<>(); // 添加数据列表成员变量
+
+    ProgressBar progressBar =null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rate_list_reall);
+
+        listView = findViewById(R.id.rate_List);
+        progressBar = findViewById(R.id.prgBar);
+        
+        //初始化dbHelper
+        dbHelper = new RateDatabaseHelper(this);
+        
+        SharedPreferences prefs = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        long lastUpdate = prefs.getLong(LAST_UPDATE_KEY, 0);
+        long currentTime = System.currentTimeMillis();
+        
+        // 检查是否超过24小时
+        if (currentTime - lastUpdate > TimeUnit.HOURS.toMillis(24)) {
+            // 需要更新数据
+            startDataUpdate();
+            // 保存当前时间
+            prefs.edit().putLong(LAST_UPDATE_KEY, currentTime).apply();
+        }
+        // 无论是否需要更新，都从数据库加载数据
+        // 确保数据都来自于数据库
+        loadRatesFromDatabase();
         
         dbHelper = new RateDatabaseHelper(this);
         listView = findViewById(R.id.rate_List);
@@ -62,7 +89,7 @@ public class RateListRealActivity extends AppCompatActivity implements AdapterVi
         listView.setOnItemLongClickListener(this);
         listView.setAdapter(testAdapter);
         listView.setEmptyView(findViewById(R.id.noData));
-        ProgressBar progressBar = findViewById(R.id.prgBar);
+        progressBar = findViewById(R.id.prgBar);
 
         handler = new Handler(Looper.getMainLooper()) {
             @Override
@@ -219,6 +246,13 @@ public class RateListRealActivity extends AppCompatActivity implements AdapterVi
     }
 
     private void loadRatesFromDatabase() {
+        if (dbHelper == null) {
+            dbHelper = new RateDatabaseHelper(this);
+        }
+        if (listView == null) {
+            listView = findViewById(R.id.rate_List);
+        }
+        
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor = db.query(
                 RateDatabaseHelper.TABLE_RATES,
@@ -240,5 +274,74 @@ public class RateListRealActivity extends AppCompatActivity implements AdapterVi
                 rateList
         );
         listView.setAdapter(adapter);
+    }
+
+    private void startDataUpdate() {
+        ProgressBar progressBar = findViewById(R.id.prgBar);
+        progressBar.setVisibility(VISIBLE);
+        
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(VISIBLE);
+                Message msg = null;
+                Bundle bnd = new Bundle();
+
+                try {
+                    URL url = new URL("https://www.huilvbiao.com/bank/spdb");
+                    HttpURLConnection http = (HttpURLConnection) url.openConnection();
+                    InputStream input = http.getInputStream();
+                    String html = inputStream2String(input);
+                    Document doc = Jsoup.connect(url.toString()).get();
+
+                    Elements table = doc.select("body > main > div:nth-child(1) > div > div.table-responsive > table");
+                    if (table.isEmpty()) {
+                        Log.e(TAG, "未找到汇率表格");
+                        return;
+                    }
+
+                    Elements trs = table.select("tbody tr");
+                    if (trs.size() < 2) { // 至少需要表头和数据行
+                        Log.e(TAG, "表格行数据不足");
+                        return;
+                    }
+                    for (int i = 0; i < trs.size(); i++) {
+                        Element row = trs.get(i);
+                        // 提取货币名称
+                        Element name_e = row.selectFirst("th > a > span");
+                        // 提取汇率
+                        Element price_e = row.selectFirst("td:nth-child(2)");
+                        if (name_e != null && price_e != null) {
+                            String country = name_e.text();
+                            try {
+                                double price = Double.parseDouble(price_e.text());
+                                double rate = 100 / price;
+                                bnd.putDouble(country, rate);
+                            } catch (NumberFormatException e) {
+                                Log.e(TAG, "价格转换为数字时出错: " + e.getMessage());
+                            }
+                        } else {
+                            Log.e(TAG, "未找到国家或价格元素，索引: " + i);
+                        }
+                    }
+
+                } catch (Exception e) {
+                    Log.e(TAG, "run:" + e);
+                    return;
+                }
+                msg = handler.obtainMessage(7, bnd);
+                msg.setData(bnd); // 存入 Bundle
+                handler.sendMessage(msg);
+                Log.i(TAG, "消息发送，Bundle 内容：" + bnd);
+            }
+        }).start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (dbHelper != null) {
+            dbHelper.close();
+        }
+        super.onDestroy();
     }
 }
