@@ -20,4 +20,5 @@
     <string name="tip">外汇兑人民币</string>
     <string name="itemdetail">ItemDetail</string>
     <string name="itemTitle">ItemTitle</string>
+    <string name="no_data">NO DATA</string>
 </resources>

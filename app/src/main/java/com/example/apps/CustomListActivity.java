@@ -1,13 +1,11 @@
 package com.example.apps;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,24 +23,26 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RateListReallActivity extends AppCompatActivity {
+public class CustomListActivity extends AppCompatActivity {
     private Handler handler;
-    private static final String TAG = "RateListAcitivity";
-    private ListView listView;
+    private static final String TAG = "CustomListActivity";
+    private ListView listView = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_rate_list_reall);
-        listView = findViewById(R.id.rate_List);
 
+        // 绑定展示页面
+        setContentView(R.layout.activity_custom_list);
+        // 绑定List
+        listView = findViewById(R.id.list);
         // 若爬取失败，就显示test
         String[] data = {"t", "e", "s", "t"};
         List<String> testList = new ArrayList<>();
         for (String item : data) {
             testList.add(item);
         }
-        CustomRateAdapter testAdapter = new CustomRateAdapter(this, R.layout.custom_list_item, testList);
+        CustomAdapter testAdapter = new CustomAdapter(this, R.layout.list_item, testList);
         listView.setAdapter(testAdapter);
 
         handler = new Handler(Looper.getMainLooper()) {
@@ -58,9 +58,9 @@ public class RateListReallActivity extends AppCompatActivity {
                             double rate = bnd.getDouble(country);
                             list2.add(country + "汇率：" + rate);
                         }
-                        CustomRateAdapter adapter = new CustomRateAdapter(
-                                RateListReallActivity.this,
-                                R.layout.custom_list_item,
+                        CustomAdapter adapter = new CustomAdapter(
+                                CustomListActivity.this,
+                                R.layout.list_item,
                                 list2
                         );
                         listView.setAdapter(adapter);
@@ -69,31 +69,6 @@ public class RateListReallActivity extends AppCompatActivity {
                 super.handleMessage(msg);
             }
         };
-
-        // 设置列表项点击监听
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            // 获取当前点击项的数据
-            String itemData = (String) listView.getItemAtPosition(position);
-
-            // 解析国家和汇率（"汇率：XX.XX  国家"）
-            String[] parts = itemData.split("汇率：");
-            if (parts.length == 2) {
-                String country = parts[0].trim();
-                try {
-                    double rate = Double.parseDouble(parts[1].trim());
-
-                    // 跳转到计算页面
-                    Intent intent = new Intent(RateListReallActivity.this, RateCalculateActivity.class);
-                    intent.putExtra("country", country);  // 传递国家名称
-                    intent.putExtra("rate", rate);        // 传递汇率
-                    startActivity(intent);
-                } catch (NumberFormatException e) {
-                    Toast.makeText(RateListReallActivity.this, "无效的汇率数据", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(RateListReallActivity.this, "数据格式错误", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         // 启动子线程
         new Thread(new Runnable() {
@@ -153,6 +128,7 @@ public class RateListReallActivity extends AppCompatActivity {
     }
 
     private String inputStream2String(InputStream inputStream) throws IOException {
+        // 从ppt copy
         final int bufferSize = 1024;
         final char[] buffer = new char[bufferSize];
         final StringBuilder out = new StringBuilder();
